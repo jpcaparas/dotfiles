@@ -1,4 +1,4 @@
-# JP's dotfles
+# JP's dotfiles
 
 Gets my macOS dev env up and running.
 
