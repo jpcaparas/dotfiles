@@ -88,6 +88,10 @@ mk() {
     mkdir -p ${@} && cd ${@}
 }
 
+nah() {
+    git reset --hard && git clean -df
+}
+
 phpstorm() {
     path=${1}
     app="/Applications/PhpStorm.app"
