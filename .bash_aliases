@@ -38,6 +38,28 @@ arl() {
     a route:list ${@}
 }
 
+botman() {
+    if [ -z "$(which botman)" ]; then
+        echo "BotMan is not installed. Would you like to install it?"
+
+        botman_install_pattern="^y(es)?$"
+        read botman_install
+
+        shopt -s nocasematch
+        if [[ $botman_install =~ $botman_install_pattern ]]; then
+            composer global require botman/installer
+        else
+            return 1
+        fi
+    fi
+
+    $(which botman) ${@}
+}
+
+bot() {
+    botman ${@}
+}
+
 composer() {
     $(which php) -n -d memory_limit=-1 $(which composer) ${@}
 }
