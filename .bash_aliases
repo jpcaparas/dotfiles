@@ -85,7 +85,23 @@ ll() {
 }
 
 mk() {
-    mkdir -p ${@} && cd ${@}
+    dir="$1"
+
+    if [ ! -d "$dir" ]; then
+        pattern="^y(es)?$"
+
+        echo "Directory '$dir' does not exist. Would you like to create it? (Y/N)"
+        read createdir
+
+        if [[ $createdir =~ $pattern ]]; then
+            shopt -s nocasematch
+            mkdir -p "$dir"
+        else
+            return 1
+        fi
+    fi
+
+    cd "$dir"
 }
 
 nah() {
