@@ -3,26 +3,6 @@ syntax enable
 " We need to make sure that vim is not attempting to retain compatibility with vi, its predecessor. This is a vundle requirement. When vim attempts to be compatible, it disables most of the features that make it worth using over vi.
 
 set nocompatible
-filetype plugin indent on
-
-" Add vundle to the runtime path
-set rtp+=~/.vim/bundle/vundle/
-call vundle#rc()
-
-
-" This is the Vundle package, which can be found on GitHub.
-" For GitHub repos, you specify plugins using the
-" 'user/repository' format
-Plugin 'gmarik/vundle'
-
-Plugin 'scrooloose/nerdtree.git'
-map <C-n> :NERDTreeToggle<CR>
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
-
-Plugin 'Buffergator'
-
-" Rename file
-Plugin 'danro/rename.vim.git'
 
 " Tabs
 set tabstop=4 " columns taken by tab character
@@ -37,7 +17,8 @@ set cindent
 " Show cmd
 set showcmd
 
-filetype indent on      " load filetype-specific indent files
+" Indent based on filetype
+filetype indent on
 
 set incsearch " search as characters are entered
 set hlsearch " highlight matches
