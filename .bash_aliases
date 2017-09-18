@@ -68,6 +68,12 @@ cmp() {
     composer ${@}
 }
 
+dotf() {
+    if [ -d "$HOME/Repos/jpcaparas/dotfiles" ]; then
+        cd "$HOME/Repos/jpcaparas/dotfiles"
+    fi
+}
+
 edit() {
     file="$1"
     app="TextEdit"

@@ -1,3 +1,5 @@
+export PS1="\W \$ "
+
 if [ -f "$HOME/.bashrc" ]; then
     source "$HOME/.bashrc"
 fi
