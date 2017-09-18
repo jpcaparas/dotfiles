@@ -86,6 +86,15 @@ edit() {
     /usr/bin/open -a ${app} ${file}
 }
 
+gulp() {
+    if [ -f "$PWD/node_modules/.bin/gulp" ]; then
+        "$PWD/node_modules/.bin/gulp" ${@}
+    else
+        echo "No local version of gulp installed."
+        return 1
+    fi
+}
+
 h() {
     $(which heroku)
 }
