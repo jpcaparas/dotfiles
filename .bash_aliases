@@ -27,6 +27,12 @@ acc() {
     cmp dump-autoload
 }
 
+acl() {
+    file="${1:-$PWD}"
+
+    ls -le $file
+}
+
 am() {
     a migrate ${@}
 }
