@@ -10,6 +10,7 @@ alias v="vagrant"
 alias vu="v up"
 alias vssh="v ssh"
 
+
 a() {
     app="$PWD/artisan"
 
@@ -58,6 +59,39 @@ botman() {
 
 bot() {
     botman ${@}
+}
+
+
+branchout() {
+    git status &> /dev/null
+
+    ret_git_status="$?"
+
+    if [ ! "$ret_git_status" -eq 0 ]; then
+        echo "Not a Git repository."
+        return "$ret_git_status"
+    fi
+
+    default_author_name="jp"
+    echo "Your name? (Default: $default_author_name)"
+    read author_name
+    author_name=${author_name:=$default_author_name}
+
+    issue_summary=""
+    while [ ${#issue_summary} -le 0 ]; do
+        echo "Enter the issue summary:"
+        read issue_summary
+    done
+
+    issue_key=""
+    while [ ${#issue_key} -le 0 ]; do
+        echo "Enter the issue key:"
+        read issue_key
+    done
+    issue_key=$(echo $issue_key | awk '{print toupper($0)}')
+
+    git checkout -b "$author_name-$issue_summary-$issue_key"
+    
 }
 
 composer() {
