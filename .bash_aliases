@@ -65,32 +65,57 @@ bot() {
 branchout() {
     git status &> /dev/null
 
-    ret_git_status="$?"
+    ret_git_status=$?
 
-    if [ ! "$ret_git_status" -eq 0 ]; then
+    if [ ! $ret_git_status -eq 0 ]; then
         echo "Not a Git repository."
-        return "$ret_git_status"
+        return $ret_git_status
     fi
+
+    echo ""
+
+    default_start_branch="development"
+    echo "Branch from? (Default: $default_start_branch)"
+    read start_branch
+    echo ""
+    start_branch=${start_branch:=$default_start_branch}
+    git rev-parse --verify $start_branch &> /dev/null
+    ret_start_branch=$?
+
+    if [ ! $ret_start_branch -eq 0 ]; then
+        echo "Not a valid Git branch."
+        return $ret_start_branch
+    fi
+
 
     default_author_name="jp"
     echo "Your name? (Default: $default_author_name)"
     read author_name
+    echo ""
     author_name=${author_name:=$default_author_name}
 
     issue_summary=""
     while [ ${#issue_summary} -le 0 ]; do
         echo "Enter the issue summary:"
         read issue_summary
+        echo ""
     done
 
     issue_key=""
-    while [ ${#issue_key} -le 0 ]; do
+    issue_key_pattern="[a-z]{3,}-[0-9]+"
+    issue_key_pattern_match=false
+    shopt -s nocasematch
+    while [ $issue_key_pattern_match = false ]; do
         echo "Enter the issue key:"
         read issue_key
+        echo ""
+        if [[ $issue_key =~ $issue_key_pattern ]]; then
+            issue_key_pattern_match=true
+        fi
     done
     issue_key=$(echo $issue_key | awk '{print toupper($0)}')
 
-    git checkout -b "$author_name-$issue_summary-$issue_key"
+    git checkout -b "$author_name-$issue_summary-$issue_key" "$start_branch"
     
 }
 
