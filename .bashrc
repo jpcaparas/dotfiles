@@ -9,4 +9,9 @@ if [ -d "$HOME/.composer/vendor/bin" ]; then
 fi
 
 # Ruby environment manager
-eval "$(rbenv init -)";
+which rbenv &> /dev/null
+rbenv_exists=$?
+if [ "$rbenv_exists" -eq 0 ]; then
+    eval "$(rbenv init -)";
+fi
+
