@@ -151,6 +151,14 @@ edit() {
     /usr/bin/open -a ${app} ${file}
 }
 
+gb() {
+    $(which git) branch ${@}
+}
+
+gc() {
+    $(which git) checkout ${@}
+}
+
 gulp() {
     if [ -f "$PWD/node_modules/.bin/gulp" ]; then
         "$PWD/node_modules/.bin/gulp" ${@}
@@ -184,6 +192,44 @@ jira() {
 
 ll() {
     ls -la ${@}
+}
+
+laranew() {
+    version_default="5.5"
+    echo ""
+    echo "What version  would you like installed? (Default: $version_default)"
+    read version
+    version="${version:-$version_default}"
+
+
+    app_name_default="laravel-app"
+    echo ""
+    echo "What would be the app name? (Default: $app_name_default)"
+    read app_name
+    app_name="${app_name:-$app_name_default}"
+
+    echo ""
+    echo "Crafting application..."
+    composer create-project --prefer-dist "laravel/laravel:$version.*" "$app_name"
+}
+
+laralog() {
+    storage_default="storage"
+
+    if [ ! -f "$PWD/artisan" ]; then
+        echo "Not a Laravel project."
+        return 1
+    fi
+
+    echo ""
+    echo "What's the name of your storage folder? (Default: $storage_default)"
+    echo ""
+
+    read storage
+    storage=${storage:-$storage_default}
+
+    shopt -s dotglob
+    tail -f $PWD/$storage/logs/*.log
 }
 
 mk() {
