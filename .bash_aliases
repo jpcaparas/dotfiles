@@ -104,6 +104,7 @@ branchout() {
     while [ ${#issue_summary} -le 0 ]; do
         echo "Enter the issue summary:"
         read issue_summary
+        issue_summary="$(echo $issue_summary | sed -e 's/[^[:alnum:]]/-/g' | awk '{ print tolower($0) }')"
         echo ""
     done
 
@@ -265,6 +266,24 @@ phpstorm() {
     fi
 
     /usr/bin/open -a ${app} ${PWD}
+}
+
+phplinter() {
+    linter="$PWD/vendor/bin/php-cs-fixer"
+
+    if [ ! -f $linter ]; then
+        echo "php-cs-fixer does not exist on ./vendor/bin."
+        return 1
+    fi
+
+	target_branch="${1:-development}"
+	current_branch="${2:-$(git rev-parse --abbrev-ref HEAD)}"
+
+	IFS=$'\n'
+	changed_files="$(git diff --name-only $target_branch..$current_branch)"
+	unset IFS
+
+    $linter fix --config=.php_cs.dist -v --dry-run --using-cache=no --path-mode=intersection $changed_files
 }
 
 repo() {
