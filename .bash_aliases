@@ -269,10 +269,10 @@ phpstorm() {
 }
 
 phplinter() {
-    linter="$PWD/vendor/bin/php-cs-fixer"
+    linter="$PWD/bin/phpcs-fixer"
 
     if [ ! -f $linter ]; then
-        echo "php-cs-fixer does not exist on ./vendor/bin."
+        echo "php-cs-fixer does not exist."
         return 1
     fi
 
@@ -284,6 +284,27 @@ phplinter() {
 	unset IFS
 
     $linter fix --config=.php_cs.dist -v --dry-run --using-cache=no --path-mode=intersection $changed_files
+}
+
+psysh() {
+    local_app="$PWD/vendor/bin/psysh"
+    args="$@"
+
+    if [ -f $local_app ]; then
+        echo "Loading local version of PsySH."
+        $local_app $args
+    fi
+
+    which psysh &> /dev/null
+    psysh_exists="$?"
+
+    if [ $psysh_exists -gt 0 ]; then
+        echo "PsySH does not exist."
+        return $psysh_exists
+    fi
+
+    echo "Loading global version of PsySH."
+    $(which psysh) $args
 }
 
 repo() {
