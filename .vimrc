@@ -1,5 +1,8 @@
 syntax enable
 
+" Fix backspace issues
+set backspace=indent,eol,start
+
 " We need to make sure that vim is not attempting to retain compatibility with vi, its predecessor. This is a vundle requirement. When vim attempts to be compatible, it disables most of the features that make it worth using over vi.
 
 set nocompatible
