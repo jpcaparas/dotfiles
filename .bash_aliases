@@ -322,6 +322,27 @@ repo() {
     cd ${repo_path}
 }
 
+sync() {                     
+    git status &> /dev/null  
+
+    local git_status="${?}"  
+
+    if [[ "$git_status" -ne 0 ]]; then                    
+       printf "Not a git repository.\n"                   
+
+       return 128            
+    fi                       
+
+    local branch_name=${1:-development}                   
+    local current_branch=$(git branch | grep \* | awk '{print $2}')                                                 
+
+    printf "Merging '$branch_name' into '$current_branch'\n"                                                        
+
+    git fetch origin "$branch_name:$branch_name"          
+
+    git merge $branch_name   
+}
+
 t() {
     a tinker ${@}
 }
