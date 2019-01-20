@@ -9,6 +9,84 @@ alias cda="composer dump-autoload -o"
 alias v="vagrant"
 alias vu="v up"
 alias vssh="v ssh"
+alias vim="/usr/local/bin/vim"
+alias vi="vim"
+
+editaliases() {
+    vi "$HOME/.bash_aliases"
+}
+
+sync() {
+    git status &> /dev/null 
+
+    local git_status="${?}"
+
+    if [[ "$git_status" -ne 0 ]]; then
+       printf "Not a git repository.\n"
+       
+       return 128
+    fi
+
+    local branch_name=${1:-development}
+    local current_branch=$(git branch | grep \* | awk '{print $2}')
+
+    printf "Merging '$branch_name' into '$current_branch'\n"
+
+    git fetch origin "$branch_name:$branch_name"
+
+    git merge $branch_name
+}
+
+# Spawn a selenium server on local
+selenium() {
+    local port pids
+
+    # Port to use. Defaults to 5555
+    port="${1:-5555}"
+
+    # Get pids to delete before spawning the selenium service
+    pids=$(lsof -i "tcp:${port}" | grep 'LISTEN' | awk '{print $2}')
+
+    if [ ! -z "$pids" ]; then
+        printf "Killing existing processes that use port $port.\n"
+
+        kill -9 $pids
+    fi
+
+    printf "Starting selenium server on port $port.\n"
+
+    selenium-server -port $port
+}
+
+devmaster() {
+    local link
+
+    link="${1}"
+
+    if [ -z $link ]; then
+        echo "Enter a link!"
+
+        return 1 
+    fi
+
+    echo "Hi @here, can I get a :approvamundo: dev->master :approvamundo: approval for this: $link" | pbcopy 
+    echo "Copied to clipboard"
+
+    return 0
+}
+
+_ssh() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    opts=$(grep '^Host' ~/.ssh/config | grep -v '[?*]' | cut -d ' ' -f 2-)
+
+    COMPREPLY=( $(compgen -W "$opts" -- ${cur}) )
+    return 0
+}
+complete -F _ssh ssh
 
 
 a() {
@@ -94,7 +172,7 @@ branchout() {
     fi
 
 
-    default_author_name="jp"
+    default_author_name="jc"
     echo "Your name? (Default: $default_author_name)"
     read author_name
     echo ""
@@ -126,6 +204,18 @@ branchout() {
     
 }
 
+changes() {
+    git status ${@}
+}
+
+chrome() {
+    /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome ${@}
+}
+
+cls() {
+    clear ${@}
+}
+
 composer() {
     $(which php) -n -d memory_limit=-1 $(which composer) ${@}
 }
@@ -134,10 +224,14 @@ cmp() {
     composer ${@}
 }
 
-dotf() {
-    if [ -d "$HOME/Repos/jpcaparas/dotfiles" ]; then
-        cd "$HOME/Repos/jpcaparas/dotfiles"
-    fi
+d() {
+    cd ~/Desktop ${@}
+}
+
+# Deletes stale Git branches
+dsb() {
+    echo "Deleting stale Git branches..."
+    git branch --merged | egrep -v "(^\*|master|dev)" | xargs git branch -d
 }
 
 edit() {
@@ -152,12 +246,34 @@ edit() {
     /usr/bin/open -a ${app} ${file}
 }
 
+
+# "apply develop" on current branch
+gad() {
+    current_branch="$(git rev-parse --abbrev-ref HEAD)"
+    dev_branch="development"
+    repository="origin"
+
+    $(which git) fetch --update-head-ok $repository $dev_branch:$current_branch
+}
+
 gb() {
     $(which git) branch ${@}
 }
 
 gc() {
     $(which git) checkout ${@}
+}
+
+gd() {
+    $(which git) diff ${@}
+}   
+
+gp() {
+    $(which git) push ${@}
+}
+
+gs() {
+    $(which git) status ${@}
 }
 
 gulp() {
@@ -169,68 +285,8 @@ gulp() {
     fi
 }
 
-h() {
-    $(which heroku)
-}
-
-jira() {
-    app="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-    arg=${@}
-    url="https://pixelfusion.atlassian.net"
-    url_ticket="$url/browse"
-    url_kanban="$url/projects"
-
-    re='^[a-zA-Z]+-[0-9]+$'
-	
-    if [[ $arg =~ $re ]]; then
-        ticket="$url_ticket/$arg"
-    else
-        ticket="$url_kanban/$arg"
-    fi
-
-    open -a ${app} ${ticket}
-}
-
 ll() {
     ls -la ${@}
-}
-
-laranew() {
-    version_default="5.5"
-    echo ""
-    echo "What version  would you like installed? (Default: $version_default)"
-    read version
-    version="${version:-$version_default}"
-
-
-    app_name_default="laravel-app"
-    echo ""
-    echo "What would be the app name? (Default: $app_name_default)"
-    read app_name
-    app_name="${app_name:-$app_name_default}"
-
-    echo ""
-    echo "Crafting application..."
-    composer create-project --prefer-dist "laravel/laravel:$version.*" "$app_name"
-}
-
-laralog() {
-    storage_default="storage"
-
-    if [ ! -f "$PWD/artisan" ]; then
-        echo "Not a Laravel project."
-        return 1
-    fi
-
-    echo ""
-    echo "What's the name of your storage folder? (Default: $storage_default)"
-    echo ""
-
-    read storage
-    storage=${storage:-$storage_default}
-
-    shopt -s dotglob
-    tail -f $PWD/$storage/logs/*.log
 }
 
 mk() {
@@ -307,6 +363,7 @@ psysh() {
     $(which psysh) $args
 }
 
+
 repo() {
     repo=${1}
     repo_path="$HOME/Repos/$repo"
@@ -320,27 +377,6 @@ repo() {
     echo ""
 
     cd ${repo_path}
-}
-
-sync() {                     
-    git status &> /dev/null  
-
-    local git_status="${?}"  
-
-    if [[ "$git_status" -ne 0 ]]; then                    
-       printf "Not a git repository.\n"                   
-
-       return 128            
-    fi                       
-
-    local branch_name=${1:-development}                   
-    local current_branch=$(git branch | grep \* | awk '{print $2}')                                                 
-
-    printf "Merging '$branch_name' into '$current_branch'\n"                                                        
-
-    git fetch origin "$branch_name:$branch_name"          
-
-    git merge $branch_name   
 }
 
 t() {
