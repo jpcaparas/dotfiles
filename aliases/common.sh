@@ -2,8 +2,13 @@
 
 alias flushdns="sudo killall -HUP mDNSResponder"
 alias reloadcli="echo 'Re-sourcing bash profile'; source $HOME/.bash_profile"
-alias today="echo `date +%Y-%m-%d` | pbcopy"
 alias vi="$(which  vim)"
+
+copyssh() {
+    local sshpath=${1:-$HOME/.ssh/id_rsa.pub}
+
+    cat $sshpath | pbcopy
+}
 
 dirsize() {
     local target="${1:-*}"
@@ -127,9 +132,9 @@ psysh() {
 }
 
 today() {
-    echo `date +%Y-%m-%d` | pbcopy
+    echo $(date +%Y-%m-%d) | pbcopy
 }
 
 now() {
-    echo `date +%Y-%m-%d-%H%.%M.%S` | pbcopy
+    echo $(date +%Y-%m-%d-%H%.%M.%S) | pbcopy
 }
