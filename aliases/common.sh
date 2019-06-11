@@ -4,6 +4,33 @@ alias flushdns="sudo killall -HUP mDNSResponder"
 alias reloadcli="echo 'Re-sourcing bash profile'; source $HOME/.bash_profile"
 alias vi="$(which  vim)"
 
+lambdatest() {
+    local script="$0"
+    local username="${1:-$LAMBDATEST_USERNAME}" # fall back to environment variable
+    local api_key="${2:-$LAMBDATEST_API_KEY}" # fall back to environment variable
+
+    _usage() {
+        local message="${1-'There was an error.'}"
+
+        printf "$(date) : $script : $message\n\n"
+        printf "Usage: $script <username> <api-key>\n"
+    }
+
+    [[ $(which LT) && $? -ne 0 ]] && _usage "LambdaTest binary is nowhere to be found. Get it from https://s3.amazonaws.com/lambda-tunnel/LT_Linux.zip and move it on your '/usr/local/bin' directory." && return 1;
+
+    [[ -z "$api_key" || -z "$username" ]] && _usage "Cannot start LambdaTest daemon. API key and/or username is missing." && return 1;
+
+    $(which LT) -user "$username" -key "$api_key"
+}
+
+phpcs() {
+    [[ -x "$PWD/bin/phpcs-fixer" ]] && "$PWD/bin/phpcs-fixer"
+}
+
+reloadshell() {
+    [[ "$SHELL" == "$(which zsh)" ]] && source "$HOME/.zshrc"
+}
+
 copyssh() {
     local sshpath=${1:-$HOME/.ssh/id_rsa.pub}
 
